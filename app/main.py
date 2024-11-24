@@ -1,4 +1,5 @@
-from fastapi import FastAPI, Cookie
+from typing import Annotated
+from fastapi import FastAPI, Cookie, Header
 import redis
 from .config import REDIS_DB, REDIS_HOST, REDIS_PORT, REDIS_USER, REDIS_PASSWORD, PUBLIC_KEY_PATH
 from jwt import decode
@@ -18,13 +19,12 @@ class Image(BaseModel):
     user_id: str
     image_id: str
 
-# jwt in cookie, rest in body, deletes
 @app.delete("/delete")
-async def delete_image(image: Image, token: str = Cookie(None)):
+async def delete_image(image: Image, x_token: Annotated[str, Header()]):
     try:
-        payload = decode(token, PUBLIC_KEY_PATH, algorithms=['RS256'])
+        payload = decode(x_token, PUBLIC_KEY_PATH, algorithms=['RS256'])
     except Exception as e:
-        return {"error": str(e)}
+        return {"error": "token is invalid"}
 
     if payload['id'] != image.user_id:
         return {"error": "user_id in token and body not match"}
