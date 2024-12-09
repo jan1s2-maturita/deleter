@@ -1,5 +1,5 @@
 from typing import Annotated
-from fastapi import FastAPI, Header
+from fastapi import FastAPI, HTTPException, Header
 from .config import REDIS_DB, REDIS_HOST, REDIS_PORT, REDIS_USER, REDIS_PASSWORD, PUBLIC_KEY_PATH, KUBERNETES_KEY, KUBERNETES_URL
 from jwt import decode
 from .models.k8s_helper import Kubernetes
@@ -24,10 +24,13 @@ def delete_in_k8s(user_id, image_id):
 
 @app.delete("/delete/{image_id}")
 def delete_deploy(deploy_name: int, x_token: Annotated[str, Header()]):
+    payload = None
     try:
-        payload = decode(x_token, PUBLIC_KEY_PATH, algorithms=['RS256'])
+        with open(PUBLIC_KEY_PATH, 'r') as f:
+            public_key = f.read()
+            payload = decode(x_token, public_key, algorithms=['RS256'])
     except Exception as e:
-        return {"error": "token is invalid"}
+        raise HTTPException(status_code=401, detail="Invalid token")
 
 
     delete_in_redis(payload["id"],deploy_name)
