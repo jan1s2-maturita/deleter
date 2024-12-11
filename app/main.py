@@ -1,3 +1,4 @@
+from contextlib import asynccontextmanager
 from typing import Annotated
 from fastapi import FastAPI, HTTPException, Header
 from .config import REDIS_DB, REDIS_HOST, REDIS_PORT, REDIS_USER, REDIS_PASSWORD, PUBLIC_KEY_PATH, KUBERNETES_KEY, KUBERNETES_URL
@@ -5,12 +6,20 @@ from jwt import decode
 from .models.k8s_helper import Kubernetes
 from .models.redis_helper import RedisConnector
 
-app = FastAPI()
-kube = Kubernetes(key=KUBERNETES_KEY, url=KUBERNETES_URL)
-r = RedisConnector(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB, password=REDIS_PASSWORD, user=REDIS_USER)
+kube: Kubernetes
+r: RedisConnector
 
+@asynccontextmanager
+async def init(app: FastAPI):
+    global kube
+    global r
+    kube = Kubernetes(key=KUBERNETES_KEY, url=KUBERNETES_URL)
+    r = RedisConnector(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB, password=REDIS_PASSWORD, user=REDIS_USER)
+    yield
 
-
+app = FastAPI(lifespan=init)
+# kube = Kubernetes(key=KUBERNETES_KEY, url=KUBERNETES_URL)
+# r = RedisConnector(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB, password=REDIS_PASSWORD, user=REDIS_USER)
 
 def delete_in_redis(user_id, image_id):
 
