@@ -31,8 +31,8 @@ def delete_in_k8s(user_id, image_id):
     kube.delete_deploy(user_id, image_id)
 
 
-@app.delete("/delete/{image_id}")
-def delete_deploy(deploy_name: int, x_token: Annotated[str, Header()]):
+@app.delete("/delete/{challenge_id}")
+def delete_deploy(challenge_id: int, x_token: Annotated[str, Header()]):
     payload = None
     try:
         with open(PUBLIC_KEY_PATH, 'r') as f:
@@ -42,7 +42,7 @@ def delete_deploy(deploy_name: int, x_token: Annotated[str, Header()]):
         raise HTTPException(status_code=401, detail="Invalid token")
 
 
-    delete_in_redis(payload["id"],deploy_name)
-    delete_in_k8s(payload["id"],deploy_name)
+    delete_in_redis(payload["id"],challenge_id)
+    delete_in_k8s(payload["id"],challenge_id)
 
     return {"message": "delete successfully"}
