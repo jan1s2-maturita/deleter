@@ -31,7 +31,7 @@ def delete_in_k8s(user_id, image_id):
     kube.delete_deploy(user_id, image_id)
 
 
-@app.delete("/delete/{challenge_id}")
+@app.delete("/{challenge_id}")
 def delete_deploy(challenge_id: int, x_token: Annotated[str, Header()]):
     payload = None
     try:
