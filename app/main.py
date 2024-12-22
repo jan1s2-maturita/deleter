@@ -46,3 +46,7 @@ def delete_deploy(challenge_id: int, x_token: Annotated[str, Header()]):
     delete_in_k8s(payload["id"],challenge_id)
 
     return {"message": "delete successfully"}
+
+@app.get("/health")
+def health():
+    return {"message": "ok"}
