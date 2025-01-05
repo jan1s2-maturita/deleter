@@ -42,8 +42,8 @@ def delete_deploy(challenge_id: int, x_token: Annotated[str, Header()]):
         raise HTTPException(status_code=401, detail="Invalid token")
 
 
-    delete_in_redis(payload["id"],challenge_id)
-    delete_in_k8s(payload["id"],challenge_id)
+    delete_in_redis(payload["sub"],challenge_id)
+    delete_in_k8s(payload["sub"],challenge_id)
 
     return {"message": "delete successfully"}
 
