@@ -17,7 +17,8 @@ async def init(app: FastAPI):
     r = RedisConnector(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB, password=REDIS_PASSWORD, user=REDIS_USER)
     yield
 
-app = FastAPI(lifespan=init)
+app = FastAPI(lifespan=init,
+              root_path="/api/deployer")
 # kube = Kubernetes(key=KUBERNETES_KEY, url=KUBERNETES_URL)
 # r = RedisConnector(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB, password=REDIS_PASSWORD, user=REDIS_USER)
 
